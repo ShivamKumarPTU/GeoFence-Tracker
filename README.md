@@ -67,7 +67,7 @@ These permissions are required for accurate geofence detection and user notifica
 ## ▶️ Demo Video
 
 📹 Demo video of the application:  
-**[Add Google Drive link here]**
+**[Google Drive link coming soon]**
 
 ---
 
