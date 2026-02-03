@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mapFragment"
+        android:title="@string/map"
+
+        android:icon="@drawable/geofence"/>
+
+    <item
+        android:id="@+id/geofenceFragment"
+        android:title="@string/geofence"
+
+        android:icon="@drawable/hamburger"/>
+
+    <item
+        android:id="@+id/historyFragment"
+        android:title="@string/history"
+
+        android:icon="@drawable/history"/>
+
+
+</menu>

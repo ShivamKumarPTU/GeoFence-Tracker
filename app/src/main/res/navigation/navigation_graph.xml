@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/mapFragment">
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.geofencetracker.Map"
+        android:label="Geofence Tracker"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/geofenceFragment"
+        android:name="com.example.geofencetracker.Geofence"
+        android:label="My Geofences"
+        tools:layout="@layout/fragment_geofence" />
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.geofencetracker.History"
+        android:label="Visit History"
+        tools:layout="@layout/fragment_history" />
+
+</navigation>
