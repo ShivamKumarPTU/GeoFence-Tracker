@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -147,11 +148,14 @@ class Map : Fragment(), OnMapReadyCallback {
             )
         }
         */
-
-
+//  Adding delete functionality when User clicks on marker
+ mMap.setOnInfoWindowClickListener { marker ->
+     val geofence = marker.tag as GeofenceEntity
+    showDeleteConfirmationDialog(geofence)
+ }
      //   mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(12f)
 
-        mMap.setOnMapLongClickListener  { latLng ->
+        mMap.setOnMapClickListener  { latLng ->
             showGeofencNameDialog(latLng)
         }
         if(ActivityCompat.checkSelfPermission(
@@ -410,6 +414,10 @@ class Map : Fragment(), OnMapReadyCallback {
                 .snippet("Radius: ${geofence.radius}m")
         )
 
+        // Attach the geofence data object to the marker's tag
+        if(marker!= null){
+            marker.tag = geofence
+        }
         val circle = mMap.addCircle(
             CircleOptions()
                 .center(latLng)
@@ -423,4 +431,64 @@ class Map : Fragment(), OnMapReadyCallback {
         }
     }
 
+    // delete Dialog for marker
+    private fun showDeleteConfirmationDialog(geofence: GeofenceEntity?) {
+        val dialogView= layoutInflater.inflate(
+            R.layout.dialog_delete_geofence,
+            null
+        )
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvMessage)
+        val btnDelete = dialogView.findViewById<Button>(R.id.btnDelete)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        tvMessage.text =
+            "Are you sure you want to delete \"${geofence?.name}\"?\n" +
+                    "This action cannot be undone."
+
+        val dialog =AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+
+        btnDelete.setOnClickListener {
+            // 🔥 For now only Toast
+        geofence?.let{ nonNullGeofence ->
+            // Unregister from GeofencingClient first
+            geofencingClient.removeGeofences(listOf(nonNullGeofence.geofenceId)).run {
+                addOnSuccessListener {
+                    Log.d(
+                        "GeofenceDelete",
+                        "Successfully removed from Geofencing Client:${nonNullGeofence.geofenceId}"
+                    )
+                }
+                //2. on success , remove from the database via the viewmodel
+                geofenceViewModel.deleteGeofence(nonNullGeofence)
+                Toast.makeText(
+                    requireContext(),
+                    "Geofence deleted",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                addOnFailureListener {
+                    Log.e("GeofenceDelete", "Failed to remove from Geofencing Client" )
+                    Toast.makeText(
+                        requireContext(),
+                        "Error :Failed to delete the active geofence",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.example.geofencetracker
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,13 +18,15 @@ import com.example.geofencetracker.DataModel.GeofenceVisitUiModel
 import com.example.geofencetracker.databinding.FragmentGeofenceBinding
 import com.example.geofencetracker.geofenceadapter.GeofenceAdapter
 import com.example.geofencetracker.viewmodel.GeofenceViewModel
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 
 class Geofence : Fragment() {
  private var _binding : FragmentGeofenceBinding? = null
     private val binding get() = _binding!!
   private lateinit var geofenceAdapter: GeofenceAdapter
   private val geofenceViewModel: GeofenceViewModel by viewModels()
-
+private lateinit var geofencingClient: GeofencingClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +40,8 @@ class Geofence : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        // Initialising Geofencing client
+        geofencingClient = LocationServices.getGeofencingClient(requireContext())
     }
     private fun setupRecyclerView() {
         // later this will come from Room/viewmodel
@@ -124,7 +129,8 @@ class Geofence : Fragment() {
         }
     }
 
-    private fun showDeleteConfirmationDialog(geofence: GeofenceEntity) {
+    // delete Dialog for marker
+    private fun showDeleteConfirmationDialog(geofence: GeofenceEntity?) {
         val dialogView= layoutInflater.inflate(
             R.layout.dialog_delete_geofence,
             null
@@ -134,7 +140,7 @@ class Geofence : Fragment() {
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
 
         tvMessage.text =
-            "Are you sure you want to delete \"${geofence.name}\"?\n" +
+            "Are you sure you want to delete \"${geofence?.name}\"?\n" +
                     "This action cannot be undone."
 
         val dialog =AlertDialog.Builder(requireContext())
@@ -145,22 +151,43 @@ class Geofence : Fragment() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
 
-    btnDelete.setOnClickListener {
-        // 🔥 For now only Toast
-        geofenceViewModel.deleteGeofence(geofence)
+        btnDelete.setOnClickListener {
+            // 🔥 For now only Toast
+            geofence?.let{ nonNullGeofence ->
+                // Unregister from GeofencingClient first
+                geofencingClient.removeGeofences(listOf(nonNullGeofence.geofenceId)).run {
+                    addOnSuccessListener {
+                        Log.d(
+                            "GeofenceDelete",
+                            "Successfully removed from Geofencing Client:${nonNullGeofence.geofenceId}"
+                        )
+                    }
+                    //2. on success , remove from the database via the viewmodel
+                    geofenceViewModel.deleteGeofence(nonNullGeofence)
+                    Toast.makeText(
+                        requireContext(),
+                        "Geofence deleted",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-        Toast.makeText(
-            requireContext(),
-            "Geofence deleted",
-            Toast.LENGTH_SHORT
-        ).show()
+                    addOnFailureListener {
+                        Log.e("GeofenceDelete", "Failed to remove from Geofencing Client" )
+                        Toast.makeText(
+                            requireContext(),
+                            "Error :Failed to delete the active geofence",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
 
-        dialog.dismiss()
-    }
 
-    btnCancel.setOnClickListener {
-        dialog.dismiss()
-    }
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
     }
     private fun observeGeofences(){
         geofenceViewModel.geofences.observe(viewLifecycleOwner){ list->

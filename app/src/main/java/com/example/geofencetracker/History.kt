@@ -38,9 +38,6 @@ class History : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         observeHistory()
-        binding.radioButton.setOnClickListener {
-            triggerDummyGeofenceNotification()
-        }
 
     }
 
