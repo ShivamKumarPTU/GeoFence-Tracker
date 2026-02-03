@@ -7,7 +7,8 @@
 
 ## ▶️ Demo Video
 
-<video src="Demo/geofence_tracker_demo.mp4" controls width="360"></video>
+[![Watch Demo](Screenshots/demo_preview.png)](Demo/geofence_tracker_demo.mp4)
+
 
 > 📌 The demo video is stored locally inside the `Demo/` folder so it plays directly on GitHub.
 
