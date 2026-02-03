@@ -245,7 +245,7 @@ class Map : Fragment(), OnMapReadyCallback {
             requireContext(),
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
 
@@ -366,14 +366,23 @@ class Map : Fragment(), OnMapReadyCallback {
             requestBackgroundLocationPermission()
             return
         }
-        geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent).run{
-            addOnSuccessListener {
-                Toast.makeText(requireContext(),"$geofenceName added",Toast.LENGTH_SHORT).show()
+        geofencingClient
+            .addGeofences(geofenceRequest, geofencePendingIntent)
+            .addOnSuccessListener {
+                Toast.makeText(
+                    requireContext(),
+                    "$geofenceName added",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            addOnFailureListener {
-                Toast.makeText(requireContext() ,"Failed to add Geofence",Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Log.e("Geofence", "Failed", e)
+                Toast.makeText(
+                    requireContext(),
+                    "Failed: ${e.localizedMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
-        }
 
     }
     // Notification Permission

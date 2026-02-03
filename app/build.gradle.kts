@@ -31,6 +31,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            resValue("string", "app_name", "GeoFence Tracker")
+        }
+        release {
+            resValue ("string", "app_name", "GeoFence Tracker")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
