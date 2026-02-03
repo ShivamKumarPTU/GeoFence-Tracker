@@ -6,8 +6,7 @@
 ---
 
 ## ▶️ Demo Video
-
-[![Watch Demo](Screenshots/demo_preview.png)](https://github.com/ShivamKumarPTU/GeoFence-Tracker/blob/main/Demo/GeofenceTracker.mp4)
+https://github.com/user-attachments/assets/f56ef880-5944-4e1f-b8cb-b46969228a2e
 
 > 📌 The demo video is stored locally inside the `Demo/` folder so it plays directly on GitHub.
 
