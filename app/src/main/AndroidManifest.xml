@@ -17,9 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoFenceTracker">
-        <activity
-            android:name=".receiver.GeofenceReceiver"
-            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 

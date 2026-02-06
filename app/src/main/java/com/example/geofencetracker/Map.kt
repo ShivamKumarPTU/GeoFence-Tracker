@@ -290,16 +290,21 @@ class Map : Fragment(), OnMapReadyCallback {
 
         dialogView.findViewById<Button>(R.id.btnAdd).setOnClickListener {
             val geofenceName = dialogView.findViewById<EditText>(R.id.etGeofenceName).text.toString()
-        if(geofenceName.isEmpty()){
-            Toast.makeText(requireContext(),"Geofence name cannot be empty",Toast.LENGTH_SHORT).show()
-            return@setOnClickListener
-        }
-            val radius = dialogView.findViewById<EditText>(R.id.etRadius).text.toString().toFloat()
-            if(radius<10 || radius>50){
-                Toast.makeText(requireContext(),"Radius must be between 10 and 50",Toast.LENGTH_SHORT).show()
+            if (geofenceName.isEmpty()) {
+                Toast.makeText(requireContext(), "Geofence name cannot be empty", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            addGeofenceWithName(latLng,geofenceName,radius)
+            val radiusInput = dialogView.findViewById<EditText>(R.id.etRadius).text.toString()
+            val radius = radiusInput.toFloatOrNull()
+            if (radius == null) {
+                Toast.makeText(requireContext(), "Radius must be a number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (radius < 10 || radius > 50) {
+                Toast.makeText(requireContext(), "Radius must be between 10 and 50", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            addGeofenceWithName(latLng, geofenceName, radius)
             dialog.dismiss()
         }
         dialogView.findViewById<Button>(R.id.btnCancel).setOnClickListener {
@@ -325,8 +330,9 @@ class Map : Fragment(), OnMapReadyCallback {
         if(marker !=null){
             markerCircleMap[marker] = circle
         }
+        val geofenceId = UUID.randomUUID().toString()
         val geofence = com.google.android.gms.location.Geofence.Builder()
-            .setRequestId(geofenceName)
+            .setRequestId(geofenceId)
             .setCircularRegion(
                 latLng.latitude,
                 latLng.longitude,
@@ -342,16 +348,16 @@ class Map : Fragment(), OnMapReadyCallback {
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_EXIT)
             .addGeofence(geofence)
             .build()
-       geofenceViewModel.addGeofence(
-           GeofenceEntity(
-               geofenceId = UUID.randomUUID().toString(),
-               name = geofenceName,
-               latitude = latLng.latitude,
-               longitude = latLng.longitude,
-               radius = radius.toInt(),
-               createdAt = System.currentTimeMillis()
-           )
-       )
+        geofenceViewModel.addGeofence(
+            GeofenceEntity(
+                geofenceId = geofenceId,
+                name = geofenceName,
+                latitude = latLng.latitude,
+                longitude = latLng.longitude,
+                radius = radius.toInt(),
+                createdAt = System.currentTimeMillis()
+            )
+        )
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
